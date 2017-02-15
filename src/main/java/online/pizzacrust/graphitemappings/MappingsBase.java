@@ -1,12 +1,5 @@
 package online.pizzacrust.graphitemappings;
 
-import com.google.common.collect.ImmutableList;
-
-import net.techcable.srglib.JavaType;
-import net.techcable.srglib.format.MappingsFormat;
-import net.techcable.srglib.mappings.Mappings;
-import net.techcable.srglib.mappings.MutableMappings;
-
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 
@@ -14,6 +7,8 @@ import sun.misc.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -22,14 +17,16 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import lombok.RequiredArgsConstructor;
+import online.pizzacrust.graphitemappings.srg.Mappings;
+import online.pizzacrust.graphitemappings.srg.TypeNameEnforcer;
 
 @RequiredArgsConstructor
 public abstract class MappingsBase {
 
-    private final MutableMappings mappings = MutableMappings.create();
+    private final Mappings mappings = new Mappings();
     private final JarFile jarFile;
 
-    public MutableMappings getMappings() {
+    public Mappings getMappings() {
         return mappings;
     }
 
@@ -38,23 +35,32 @@ public abstract class MappingsBase {
     abstract void remap();
 
     public static Mappings chainClasses(List<MappingsBase> mappingsBases) {
-        List<MutableMappings> mutableMappingss = new ArrayList<>();
-        MutableMappings classMappings = MutableMappings.create();
+        List<Mappings> mutableMappingss = new ArrayList<>();
+        Mappings classMappings = new Mappings();
+        mutableMappingss.add(classMappings);
         mappingsBases.forEach((mappingsBase -> {
-            classMappings.putClass(JavaType.fromInternalName(mappingsBase.obfName().replace('.',
-                    '/')),
-                    JavaType
-                    .fromInternalName
-                    (mappingsBase
-                    .getRemappedJvmName()));
+            classMappings.putClass(mappingsBase.getObfType().getJvmStandard(), mappingsBase
+                    .getJavaType().getJvmStandard());
             mappingsBase.remap();
             mutableMappingss.add(mappingsBase.getMappings());
         }));
-        return Mappings.chain(ImmutableList.copyOf(mutableMappingss));
+        return Mappings.chain(mutableMappingss);
+    }
+
+    public TypeNameEnforcer getJavaType() {
+        //return JavaType.fromInternalName(this.getRemappedJvmName());
+        return new TypeNameEnforcer(this.getRemappedJvmName());
+    }
+
+    public TypeNameEnforcer getObfType() {
+        //return JavaType.fromInternalName(obfName().replace('.', '/'));
+        return new TypeNameEnforcer(obfName());
     }
 
     public static void writeClasses(List<MappingsBase> mappingsBases, File file) throws IOException {
-        MappingsFormat.SEARGE_FORMAT.writeToFile(chainClasses(mappingsBases), file);
+        List<String> lines = chainClasses(mappingsBases).lines();
+        Files.write(file.toPath(), lines, StandardOpenOption.TRUNCATE_EXISTING,
+                StandardOpenOption.CREATE);
     }
 
     public String getRemappedReflectName() {
