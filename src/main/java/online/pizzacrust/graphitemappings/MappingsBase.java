@@ -2,6 +2,8 @@ package online.pizzacrust.graphitemappings;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.MethodNode;
 
 import sun.misc.IOUtils;
 
@@ -17,7 +19,9 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import lombok.RequiredArgsConstructor;
+import online.pizzacrust.graphitemappings.srg.FieldRef;
 import online.pizzacrust.graphitemappings.srg.Mappings;
+import online.pizzacrust.graphitemappings.srg.MethodRef;
 import online.pizzacrust.graphitemappings.srg.TypeNameEnforcer;
 
 @RequiredArgsConstructor
@@ -30,9 +34,32 @@ public abstract class MappingsBase {
         return mappings;
     }
 
-    abstract String obfName();
+    protected abstract String obfName();
 
-    abstract void remap();
+    protected abstract void remap();
+
+    protected List<ClassNode> interfacesOf(ClassNode node) {
+        List<ClassNode> classNodes = new ArrayList<>();
+        node.interfaces.forEach((interfaceName) -> findNode(interfaceName).ifPresent(classNodes::add));
+        return classNodes;
+    }
+
+    protected MethodRef createObfMd(MethodNode methodNode) {
+        return new MethodRef(getObfType().getJvmStandard(), methodNode.name,
+                methodNode.desc);
+    }
+
+    protected MethodRef createRemappedMd(String renamed, MethodNode obf) {
+        return new MethodRef(getJavaType().getJvmStandard(), renamed, obf.desc);
+    }
+
+    protected FieldRef createObfFd(FieldNode fieldNode) {
+        return new FieldRef(getObfType().getJvmStandard(), fieldNode.name);
+    }
+
+    protected FieldRef createRemappedFd(String renamed) {
+        return new FieldRef(getJavaType().getJvmStandard(), renamed);
+    }
 
     public static Mappings chainClasses(List<MappingsBase> mappingsBases) {
         List<Mappings> mutableMappingss = new ArrayList<>();

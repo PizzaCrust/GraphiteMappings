@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class Mappings {
 
@@ -15,13 +16,22 @@ public class Mappings {
     private final Map<MethodRef, MethodRef> methodMappings = new HashMap<>();
 
     public void putClass(String a, String b) {
-        classMappings.put(a, b);
+        classMappings.put(new TypeNameEnforcer(a).getJvmStandard(), new TypeNameEnforcer(b).getJvmStandard());
     }
 
     public static void main(String... args) throws Exception {
         System.out.println(Type.getObjectType("test/meow").getClassName());
         String descriptor = Type.getMethodDescriptor(Type.getObjectType("test/meow"));
         System.out.println(descriptor);
+    }
+
+    public Optional<String> getObfuscatedClassName(String remappedName) {
+        for (Map.Entry<String, String> entry : this.classMappings.entrySet()) {
+            if (entry.getValue().equals(remappedName)) {
+                return Optional.of(entry.getKey());
+            }
+        }
+        return Optional.empty();
     }
 
     public void putMethod(MethodRef a, MethodRef b) {

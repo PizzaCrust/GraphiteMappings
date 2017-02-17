@@ -37,12 +37,12 @@ public class TestMappings {
         }
 
         @Override
-        String obfName() {
+        protected String obfName() {
             return TestMappings.class.getName();
         }
 
         @Override
-        void remap() {
+        protected void remap() {
             Optional<ClassNode> classNode = findNode(TestMappings.class.getName());
             classNode.ifPresent((cn) -> {
                 for (MethodNode method : cn.methods) {
@@ -53,10 +53,8 @@ public class TestMappings {
                                 LdcInsnNode ldcInsnNode = (LdcInsnNode) insnNode;
                                 String payload = (String) ldcInsnNode.cst;
                                 if (!payload.equals("oops")) {
-                                    MethodRef methodRef = new MethodRef(getObfType()
-                                            .getJvmStandard(), method.name, method.desc);
-                                    MethodRef methodRef1 = new MethodRef(getJavaType()
-                                            .getJvmStandard(), "correct", method.desc);
+                                    MethodRef methodRef = createObfMd(method);
+                                    MethodRef methodRef1 = createRemappedMd("correct", method);
                                     getMappings().putMethod(methodRef, methodRef1);
                                 }
                             }
