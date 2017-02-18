@@ -4,6 +4,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.Method;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
@@ -19,6 +20,7 @@ import java.util.jar.JarFile;
 import jdk.internal.org.objectweb.asm.Opcodes;
 import online.pizzacrust.graphitemappings.MappingsBase;
 import online.pizzacrust.graphitemappings.TypeMappings;
+import online.pizzacrust.graphitemappings.srg.FieldRef;
 
 @TypeMappings("net.minecraft.server.MinecraftServer")
 public class MinecraftServerMappings extends MappingsBase {
@@ -81,6 +83,26 @@ public class MinecraftServerMappings extends MappingsBase {
         }
         for (MethodNode methodNode : mcs.methods) {
             Method descriptor = new Method(methodNode.name, methodNode.desc);
+            if (methodNode.name.equals("<clinit>") && descriptor.getArgumentTypes().length == 0) {
+                methodNode.instructions.iterator().forEachRemaining((insnNode) -> {
+                    if (insnNode instanceof LdcInsnNode) {
+                        LdcInsnNode ldcInsnNode = (LdcInsnNode) insnNode;
+                        if (ldcInsnNode.cst instanceof String) {
+                            String string = (String) ldcInsnNode.cst;
+                            if (string.equals("usercache.json")) {
+                                AbstractInsnNode abstractInsnNode = insnNode.getNext().getNext();
+                                if (abstractInsnNode instanceof FieldInsnNode && abstractInsnNode
+                                        .getOpcode() == Opcodes.PUTSTATIC) {
+                                    FieldInsnNode varInsnNode = (FieldInsnNode) abstractInsnNode;
+                                    getMappings().putField(new FieldRef(varInsnNode.owner,
+                                            varInsnNode.name), createRemappedFd
+                                            ("USER_CACHE_FILE"));
+                                }
+                            }
+                        }
+                    }
+                });
+            }
             if (methodNode.name.equals("main")) {
                 if (descriptor.getArgumentTypes().length >= 1) {
                     Type argument = descriptor.getArgumentTypes()[0];
