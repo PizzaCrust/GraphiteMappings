@@ -19,9 +19,11 @@ public class CompareFiles {
     public static class CombinedRun {
 
         public static void main(String... args) throws Exception {
+            long currentTime = System.currentTimeMillis();
             GraphiteMappings.main("server", "server.jar", "output.srg");
             GraphiteMappings.main("server server1.jar output1.srg".split(" "));
             CompareFiles.main("output.srg output1.srg".split(" "));
+            System.out.println("Run configuration took: " + (System.currentTimeMillis() - currentTime));
         }
 
     }

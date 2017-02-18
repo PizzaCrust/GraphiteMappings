@@ -6,6 +6,7 @@ import java.util.jar.JarFile;
 
 import online.pizzacrust.graphitemappings.mcs.DedicatedServerMappings;
 import online.pizzacrust.graphitemappings.mcs.MinecraftServerMappings;
+import online.pizzacrust.graphitemappings.mcs.WorldMappings;
 import online.pizzacrust.graphitemappings.mcs.WorldServerMappings;
 
 public class GraphiteMappings {
@@ -21,8 +22,9 @@ public class GraphiteMappings {
             DedicatedServerMappings dedicatedServerMappings = new DedicatedServerMappings
                     (jarFile, mcServerMappings);
             WorldServerMappings worldServerMappings = new WorldServerMappings(jarFile, mcServerMappings);
+            WorldMappings worldMappings = new WorldMappings(jarFile, worldServerMappings);
             MappingsBase.writeClasses(Arrays.asList(mcServerMappings, dedicatedServerMappings,
-                    worldServerMappings), output);
+                    worldServerMappings, worldMappings), output);
         }
     }
 
