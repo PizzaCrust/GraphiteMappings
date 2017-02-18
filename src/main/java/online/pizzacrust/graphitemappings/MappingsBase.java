@@ -28,7 +28,7 @@ import online.pizzacrust.graphitemappings.srg.TypeNameEnforcer;
 public abstract class MappingsBase {
 
     public static final String[] PRIMITIVE_TYPES = new String[] { "long", "float", "int",
-            "double", "byte"};
+            "double", "byte", "boolean"};
 
     public static boolean isPrimitiveType(String string) {
         for (String primitiveType : PRIMITIVE_TYPES) {

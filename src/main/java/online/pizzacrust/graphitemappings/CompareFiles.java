@@ -23,7 +23,8 @@ public class CompareFiles {
             GraphiteMappings.main("server", "server.jar", "output.srg");
             GraphiteMappings.main("server server1.jar output1.srg".split(" "));
             CompareFiles.main("output.srg output1.srg".split(" "));
-            System.out.println("Run configuration took: " + (System.currentTimeMillis() - currentTime));
+            System.out.println("Run configuration took: " + (System.currentTimeMillis() -
+                    currentTime) / 1000 + " seconds.");
         }
 
     }

@@ -4,10 +4,14 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.Method;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static online.pizzacrust.graphitemappings.MappingsBase.isPrimitiveType;
 
 public class Mappings {
 
@@ -23,6 +27,7 @@ public class Mappings {
         System.out.println(Type.getObjectType("test/meow").getClassName());
         String descriptor = Type.getMethodDescriptor(Type.getObjectType("test/meow"));
         System.out.println(descriptor);
+        System.out.println(createDescriptor(new TypeNameEnforcer("boolean"), Collections.emptyList()));
     }
 
     public Optional<String> getObfuscatedClassName(String remappedName) {
@@ -32,6 +37,38 @@ public class Mappings {
             }
         }
         return Optional.empty();
+    }
+
+    private static String transformPrimitive(TypeNameEnforcer typeNameEnforcer) {
+        if (typeNameEnforcer.getJvmStandard().equals("boolean")) {
+            return "Z";
+        }
+        //TODO add more primitive transformations
+        return typeNameEnforcer.getJvmStandard();
+    }
+
+    public static String createDescriptor(TypeNameEnforcer returnType, List<TypeNameEnforcer>
+            typeNameEnforcers) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append('(');
+        typeNameEnforcers.forEach((typeNameEnforcer -> {
+            if (isPrimitiveType(typeNameEnforcer.getJvmStandard())) {
+                stringBuilder.append(transformPrimitive(typeNameEnforcer));
+            } else {
+                stringBuilder.append('L');
+                stringBuilder.append(typeNameEnforcer.getJvmStandard());
+                stringBuilder.append(';');
+            }
+        }));
+        stringBuilder.append(')');
+        if (isPrimitiveType(returnType.getJvmStandard())) {
+            stringBuilder.append(transformPrimitive(returnType));
+        } else {
+            stringBuilder.append('L');
+            stringBuilder.append(returnType.getJvmStandard());
+            stringBuilder.append(';');
+        }
+        return stringBuilder.toString();
     }
 
     public void putMethod(MethodRef a, MethodRef b) {
@@ -50,12 +87,8 @@ public class Mappings {
                 parameterTypes.add(new TypeNameEnforcer(type.getClassName()));
             }
         }
-        List<Type> parameterASM = new ArrayList<>();
-        Type[] parameters = parameterASM.toArray(new Type[parameterASM.size()]);
-        parameterTypes.forEach((typeNameEnforcer -> parameterASM.add(Type.getObjectType(typeNameEnforcer.getJvmStandard()))));
-        MethodRef newB = new MethodRef(b.getClassName(), b.getMethodName(), Type.getMethodDescriptor(Type
-                .getObjectType(returnType
-                .getJvmStandard()), parameters));
+        MethodRef newB = new MethodRef(b.getClassName(), b.getMethodName(), createDescriptor
+                (returnType, parameterTypes));
         methodMappings.put(a, newB);
     }
 

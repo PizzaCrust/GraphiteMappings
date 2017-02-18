@@ -1,6 +1,8 @@
 package online.pizzacrust.graphitemappings.mcs;
 
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +44,20 @@ public class DedicatedServerMappings extends MappingsBase {
                         getMappings().putClass(interfaceNode.name, "net.minecraft.network.rcon" +
                                         ".IServer");
                         already[0] = true;
+                    }
+                });
+            }
+            for (MethodNode methodNode : classNode.methods) {
+                methodNode.instructions.iterator().forEachRemaining((insnNode) -> {
+                    if (insnNode instanceof LdcInsnNode) {
+                        LdcInsnNode ldcInsnNode = (LdcInsnNode) insnNode;
+                        if (ldcInsnNode.cst instanceof String) {
+                            String cst = (String) ldcInsnNode.cst;
+                            if (cst.equals("Server console handler")) {
+                                getMappings().putMethod(createObfMd(methodNode), createRemappedMd
+                                        ("init", methodNode));
+                            }
+                        }
                     }
                 });
             }
