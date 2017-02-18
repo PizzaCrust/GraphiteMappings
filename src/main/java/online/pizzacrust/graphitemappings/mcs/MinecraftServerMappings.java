@@ -69,6 +69,14 @@ public class MinecraftServerMappings extends MappingsBase {
                     getMappings().putClass(className.replace("[]", ""), "net.minecraft.world" +
                             ".WorldServer");
                 }
+            } else if (!className.replace("[]", "").equals("java.lang.String") && isPrimitiveType
+                    (className)) {
+                if ((fieldNode.access & Opcodes.ACC_PUBLIC) != 0 && !((fieldNode.access & Opcodes
+                        .ACC_FINAL) != 0)) {
+                    if (className.contains("[][]")) {
+                        getMappings().putField(createObfFd(fieldNode), createRemappedFd("timeOfLastDimensionTick"));
+                    }
+                }
             }
         }
         for (MethodNode methodNode : mcs.methods) {
