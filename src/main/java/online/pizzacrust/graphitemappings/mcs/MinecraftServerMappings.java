@@ -61,6 +61,15 @@ public class MinecraftServerMappings extends MappingsBase {
             if (className.equals("org.apache.logging.log4j.Logger")) {
                 getMappings().putField(createObfFd(fieldNode), createRemappedFd("logger"));
             }
+            if (!className.replace("[]", "").equals("java.lang.String") && !isPrimitiveType(className)) {
+                if ((fieldNode.access & Opcodes.ACC_PUBLIC) != 0 && !((fieldNode.access & Opcodes
+                        .ACC_FINAL) != 0)) {
+                    getMappings().putField(createObfFd(fieldNode), createRemappedFd
+                            ("worlds"));
+                    getMappings().putClass(className.replace("[]", ""), "net.minecraft.world" +
+                            ".WorldServer");
+                }
+            }
         }
         for (MethodNode methodNode : mcs.methods) {
             Method descriptor = new Method(methodNode.name, methodNode.desc);

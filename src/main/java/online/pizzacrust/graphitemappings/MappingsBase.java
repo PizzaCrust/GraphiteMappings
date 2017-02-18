@@ -27,6 +27,18 @@ import online.pizzacrust.graphitemappings.srg.TypeNameEnforcer;
 @RequiredArgsConstructor
 public abstract class MappingsBase {
 
+    public static final String[] PRIMITIVE_TYPES = new String[] { "long", "float", "int",
+            "double", "byte"};
+
+    public static boolean isPrimitiveType(String string) {
+        for (String primitiveType : PRIMITIVE_TYPES) {
+            if (string.contains(primitiveType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private final Mappings mappings = new Mappings();
     private final JarFile jarFile;
 
