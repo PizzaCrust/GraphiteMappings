@@ -6,7 +6,7 @@
 
     <groupId>online.pizzacrust</groupId>
     <artifactId>GraphiteMappings</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
     <distributionManagement>
         <repository>
