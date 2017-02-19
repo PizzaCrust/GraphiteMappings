@@ -1,5 +1,6 @@
 package online.pizzacrust.graphitemappings.mcs;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -13,7 +14,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.jar.JarFile;
 
-import jdk.internal.org.objectweb.asm.Opcodes;
 import online.pizzacrust.graphitemappings.MappingsBase;
 import online.pizzacrust.graphitemappings.TypeMappings;
 
