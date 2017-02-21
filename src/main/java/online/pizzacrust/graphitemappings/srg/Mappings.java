@@ -43,7 +43,27 @@ public class Mappings {
         if (typeNameEnforcer.getJvmStandard().equals("boolean")) {
             return "Z";
         }
-        //TODO add more primitive transformations
+        if (typeNameEnforcer.getJvmStandard().equals("integer")) {
+            return "I";
+        }
+        if (typeNameEnforcer.getJvmStandard().equals("double")) {
+            return "D";
+        }
+        if (typeNameEnforcer.getJvmStandard().equals("float")) {
+            return "F";
+        }
+        if (typeNameEnforcer.getJvmStandard().equals("char")) {
+            return "C";
+        }
+        if (typeNameEnforcer.getJvmStandard().equals("long")) {
+            return "J";
+        }
+        if (typeNameEnforcer.getJvmStandard().equals("byte")) {
+            return "B";
+        }
+        if (typeNameEnforcer.getJvmStandard().equals("short")) {
+            return "S";
+        }
         return typeNameEnforcer.getJvmStandard();
     }
 
