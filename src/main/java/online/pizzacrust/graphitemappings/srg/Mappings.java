@@ -32,7 +32,7 @@ public class Mappings {
 
     public Optional<String> getObfuscatedClassName(String remappedName) {
         for (Map.Entry<String, String> entry : this.classMappings.entrySet()) {
-            if (entry.getValue().equals(remappedName)) {
+            if (entry.getValue().equals(new TypeNameEnforcer(remappedName).getJvmStandard())) {
                 return Optional.of(entry.getKey());
             }
         }
