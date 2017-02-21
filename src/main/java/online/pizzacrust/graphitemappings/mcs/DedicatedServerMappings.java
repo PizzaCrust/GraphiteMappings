@@ -91,6 +91,17 @@ public class DedicatedServerMappings extends MappingsBase {
                         }
                     }
                 });
+                classNode.fields.forEach((fieldNode -> {
+                    String typeClassName = Type.getType(fieldNode.desc).getClassName();
+                    Optional<String> serverEulaMapping = getMappings().getObfuscatedClassName
+                            ("net.minecraft.server.ServerEula");
+                    serverEulaMapping.ifPresent((mapping) -> {
+                        if (typeClassName.equals(mapping)) {
+                            getMappings().putField(createObfFd(fieldNode), createRemappedFd
+                                    ("eula"));
+                        }
+                    });
+                }));
             }
         }));
     }
